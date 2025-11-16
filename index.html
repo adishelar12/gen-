@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Gensyn Node Card — Simple Fixed</title>
+<style>
+  :root{--bg:#0b0f14;--muted:#98a0ac;--accent:#5850ee}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto;background:var(--bg);color:#e6eef8}
+  .wrap{max-width:980px;margin:28px auto;padding:16px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo-box{width:44px;height:44px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#29c1ff);display:flex;align-items:center;justify-content:center}
+  .logo-box svg{width:20px;height:20px;fill:#fff}
+  h1{margin:0;font-size:18px}
+  p.sub{margin:0;color:var(--muted);font-size:12px}
+  main{display:grid;grid-template-columns:1fr 1.2fr;gap:16px;margin-top:18px}
+  .panel{background:#0f1724;border-radius:12px;padding:14px;box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+  label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+  input[type="text"], select, input[type="color"]{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:#0b1117;color:#eef;box-sizing:border-box}
+  .row{display:flex;gap:8px}
+  .btn{background:linear-gradient(90deg,var(--accent),#29c1ff);border:none;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer}
+  .small-btn{background:#0b1117;border:1px solid rgba(255,255,255,0.04);color:#cfe;padding:6px 8px;border-radius:8px;cursor:pointer}
+  .preview-wrap{display:flex;flex-direction:column;gap:10px}
+  .card-preview{width:720px;height:420px;border-radius:16px;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,0.04)}
+  .grid-overlay{position:absolute;inset:0;opacity:0.07;background-size:72px 72px;background-image:linear-gradient(#000 1px, transparent 1px),linear-gradient(90deg,#000 1px, transparent 1px)}
+  .card-content{position:absolute;left:28px;top:28px;display:flex;align-items:center;gap:20px}
+  .avatar{width:140px;height:140px;border-radius:999px;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .txt{color:#fff}
+  .txt .name{font-weight:700;font-size:28px;margin-bottom:6px}
+  .txt .role{font-size:16px;opacity:.95;margin-bottom:4px}
+  .txt .handle{font-size:14px;opacity:.8}
+  .controls{display:grid;gap:10px}
+  .preset-list{display:flex;gap:8px;flex-wrap:wrap}
+  .preset-pill{padding:6px 8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);cursor:pointer;background:#091018;color:#dff;font-size:12px}
+  footer{margin-top:14px;color:var(--muted);font-size:12px;text-align:center}
+  @media (max-width:900px){
+    main{grid-template-columns:1fr}
+    .card-preview{width:92vw;height:56vw}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <div class="logo-box" title="Gensyn">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><g transform="translate(3,3)"><path d="M2 11h14" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><path d="M9 2v14" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></g></svg>
+      </div>
+      <div>
+        <h1>Gensyn Node Card Generator</h1>
+        <p class="sub">Minimal, dark-first — works offline</p>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center">
+      <button id="copyShare" class="small-btn">Copy share link</button>
+      <button id="downloadMain" class="btn">Download</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="panel controls">
+      <div>
+        <label>Name</label>
+        <input id="name" type="text" value="Ada Shelar"/>
+      </div>
+
+      <div>
+        <label>Role</label>
+        <input id="role" type="text" value="Node Builder"/>
+      </div>
+
+      <div>
+        <label>Handle</label>
+        <input id="handle" type="text" value="@yourhandle"/>
+      </div>
+
+      <div>
+        <label>Short tagline</label>
+        <input id="tag" type="text" value="Running nodes, building cool stuff"/>
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="flex:1">
+          <label>Color A</label>
+          <input id="c1" type="color" value="#0f172a"/>
+        </div>
+        <div style="flex:1">
+          <label>Color B</label>
+          <input id="c2" type="color" value="#0ea5e9"/>
+        </div>
+      </div>
+
+      <div>
+        <label>Presets</label>
+        <div class="preset-list" id="presets">
+          <div class="preset-pill" data-c1="#0f172a" data-c2="#0ea5e9">Aurora</div>
+          <div class="preset-pill" data-c1="#060b21" data-c2="#7c3aed">Neon</div>
+          <div class="preset-pill" data-c1="#0f172a" data-c2="#ff4d6d">Synthwave</div>
+          <div class="preset-pill" data-c1="#062e16" data-c2="#8ef08e">Green</div>
+        </div>
+      </div>
+
+      <div>
+        <label>Avatar (upload)</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="avatarFile" type="file" accept="image/*"/>
+          <button id="clearAvatar" class="small-btn">Clear</button>
+          <input id="avColor" type="color" value="#ffffff" title="Avatar color"/>
+        </div>
+      </div>
+
+      <div>
+        <label>Export size</label>
+        <select id="size">
+          <option value="1600x1000">1600×1000 (desktop)</option>
+          <option value="1080x1080">1080×1080 (square)</option>
+          <option value="1200x628">1200×628 (social)</option>
+          <option value="1080x1920">1080×1920 (mobile)</option>
+        </select>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button id="downloadBtn" class="btn">Download PNG</button>
+        <button id="copyCss" class="small-btn">Copy CSS</button>
+      </div>
+    </section>
+
+    <section class="panel preview-wrap">
+      <div class="card-preview" id="preview">
+        <div class="grid-overlay"></div>
+        <div class="card-content">
+          <div class="avatar" id="avatarBox"></div>
+          <div class="txt">
+            <div class="name" id="pName">Ada Shelar</div>
+            <div class="role" id="pRole">Node Builder</div>
+            <div class="handle" id="pHandle">@yourhandle</div>
+            <div style="margin-top:10px;font-size:13px;opacity:.9" id="pTag">Running nodes, building cool stuff</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+        <div style="color:var(--muted);font-size:12px">Live preview — mobile friendly</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button id="genQR" class="small-btn">Generate QR</button>
+          <img id="qrImg" style="width:56px;height:56px;border-radius:8px;display:none;background:#fff;padding:6px"/>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>Made for Gensyn — simple & shareable</footer>
+</div>
+
+<script>
+/* --- Element refs --- */
+const nameEl = document.getElementById('name');
+const roleEl = document.getElementById('role');
+const handleEl = document.getElementById('handle');
+const tagEl = document.getElementById('tag');
+const c1El = document.getElementById('c1');
+const c2El = document.getElementById('c2');
+const previewEl = document.getElementById('preview');
+const pName = document.getElementById('pName');
+const pRole = document.getElementById('pRole');
+const pHandle = document.getElementById('pHandle');
+const pTag = document.getElementById('pTag');
+const avatarFile = document.getElementById('avatarFile');
+const avatarBox = document.getElementById('avatarBox');
+const avColor = document.getElementById('avColor');
+const presetsEl = document.getElementById('presets');
+const downloadBtn = document.getElementById('downloadBtn');
+const downloadMain = document.getElementById('downloadMain');
+const sizeSel = document.getElementById('size');
+const copyCssBtn = document.getElementById('copyCss');
+const copyShareBtn = document.getElementById('copyShare');
+const genQRBtn = document.getElementById('genQR');
+const qrImg = document.getElementById('qrImg');
+const clearAvatarBtn = document.getElementById('clearAvatar');
+
+let avatarData = null;
+
+/* --- Update preview --- */
+function updatePreview(){
+  pName.textContent = nameEl.value || '';
+  pRole.textContent = roleEl.value || '';
+  pHandle.textContent = handleEl.value || '';
+  pTag.textContent = tagEl.value || '';
+  previewEl.style.background = `linear-gradient(135deg, ${c1El.value}, ${c2El.value})`;
+  if(avatarData){
+    avatarBox.innerHTML = '';
+    const i = document.createElement('img'); i.src = avatarData; avatarBox.appendChild(i);
+  } else {
+    avatarBox.innerHTML = '';
+    avatarBox.style.background = avColor.value;
+  }
+}
+
+/* --- Wire inputs --- */
+[nameEl, roleEl, handleEl, tagEl, c1El, c2El, avColor].forEach(el => el.addEventListener('input', updatePreview));
+
+/* --- Presets --- */
+presetsEl.addEventListener('click', (e)=>{
+  const node = e.target.closest('.preset-pill');
+  if(!node) return;
+  c1El.value = node.dataset.c1;
+  c2El.value = node.dataset.c2;
+  updatePreview();
+});
+
+/* --- Avatar upload/clear --- */
+avatarFile.addEventListener('change', function(){
+  const f = this.files && this.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{ avatarData = r.result; updatePreview(); saveState(); };
+  r.readAsDataURL(f);
+});
+clearAvatarBtn.addEventListener('click', ()=>{
+  avatarData = null; avatarFile.value = ''; updatePreview(); saveState();
+});
+
+/* --- Copy CSS --- */
+copyCssBtn.addEventListener('click', ()=>{
+  const css = `background: linear-gradient(135deg, ${c1El.value}, ${c2El.value});`;
+  navigator.clipboard?.writeText(css).then(()=>alert('CSS copied')).catch(()=>prompt('CSS', css));
+});
+
+/* --- Share link --- */
+copyShareBtn.addEventListener('click', ()=>{
+  const state = {
+    n:nameEl.value, r:roleEl.value, h:handleEl.value, t:tagEl.value,
+    c1:c1El.value, c2:c2El.value, av:avatarData, avc:avColor.value
+  };
+  const enc = btoa(encodeURIComponent(JSON.stringify(state)));
+  const url = location.origin + location.pathname + '#s=' + enc;
+  navigator.clipboard?.writeText(url).then(()=>alert('Share link copied')).catch(()=>prompt('Share link', url));
+});
+
+/* --- Generate QR (Google Chart) --- */
+genQRBtn.addEventListener('click', ()=>{
+  const state = {
+    n:nameEl.value, r:roleEl.value, h:handleEl.value, t:tagEl.value,
+    c1:c1El.value, c2:c2El.value, av:avatarData, avc:avColor.value
+  };
+  const enc = btoa(encodeURIComponent(JSON.stringify(state)));
+  const url = location.origin + location.pathname + '#s=' + enc;
+  const qr = 'https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=' + encodeURIComponent(url);
+  qrImg.src = qr; qrImg.style.display = 'block';
+});
+
+/* --- Load from hash if present --- */
+(function loadFromHash(){
+  try{
+    if(location.hash.startsWith('#s=')){
+      const raw = atob(location.hash.slice(3));
+      const obj = JSON.parse(decodeURIComponent(raw));
+      if(obj.n) nameEl.value = obj.n;
+      if(obj.r) roleEl.value = obj.r;
+      if(obj.h) handleEl.value = obj.h;
+      if(obj.t) tagEl.value = obj.t;
+      if(obj.c1) c1El.value = obj.c1;
+      if(obj.c2) c2El.value = obj.c2;
+      if(obj.avc) avColor.value = obj.avc;
+      if(obj.av) avatarData = obj.av;
+      updatePreview();
+    }
+  }catch(e){}
+})();
+
+/* --- Save / Load local state --- */
+function saveState(){
+  const st = { n:nameEl.value, r:roleEl.value, h:handleEl.value, t:tagEl.value, c1:c1El.value, c2:c2El.value, av:avatarData, avc:avColor.value };
+  try{ localStorage.setItem('gensyn_card_state', JSON.stringify(st)); }catch(e){}
+}
+function loadState(){
+  try{
+    const s = localStorage.getItem('gensyn_card_state'); if(!s) return;
+    const obj = JSON.parse(s);
+    if(obj.n) nameEl.value = obj.n;
+    if(obj.r) roleEl.value = obj.r;
+    if(obj.h) handleEl.value = obj.h;
+    if(obj.t) tagEl.value = obj.t;
+    if(obj.c1) c1El.value = obj.c1;
+    if(obj.c2) c2El.value = obj.c2;
+    if(obj.avc) avColor.value = obj.avc;
+    if(obj.av) avatarData = obj.av;
+    updatePreview();
+  }catch(e){}
+}
+[nameEl,roleEl,handleEl,tagEl,c1El,c2El,avColor].forEach(i=>i.addEventListener('change', saveState));
+window.addEventListener('load', loadState);
+
+/* --- Download / Render --- */
+function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split(' '); let line = '';
+  for(let n=0;n<words.length;n++){
+    const testLine = line + words[n] + ' ';
+    const testWidth = ctx.measureText(testLine).width;
+    if(testWidth > maxWidth && n > 0){
+      ctx.fillText(line, x, y); line = words[n] + ' '; y += lineHeight;
+    } else { line = testLine; }
+  }
+  ctx.fillText(line, x, y);
+}
+
+function downloadCard(sizeStr){
+  const [W,H] = sizeStr.split('x').map(Number);
+  const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // background gradient
+  const g = ctx.createLinearGradient(0,0,W,H); g.addColorStop(0, c1El.value); g.addColorStop(1, c2El.value);
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+
+  // faint grid
+  ctx.globalAlpha = 0.07; ctx.fillStyle = '#000';
+  const step = Math.max(28, Math.round(W/20));
+  for(let x=0;x<W;x+=step) ctx.fillRect(x,0,1,H);
+  for(let y=0;y<H;y+=step) ctx.fillRect(0,y,W,1);
+  ctx.globalAlpha = 1;
+
+  // inner panel (transparent)
+  const pad = Math.round(Math.min(W,H)*0.06);
+  const cardX = pad, cardY = pad, cardW = W - pad*2, cardH = H - pad*2;
+  roundRect(ctx, cardX, cardY, cardW, cardH, Math.round(pad*0.4));
+  ctx.fillStyle = 'rgba(0,0,0,0.12)'; ctx.fill();
+
+  // avatar
+  const ax = cardX + Math.round(cardW*0.12), ay = cardY + Math.round(cardH/2), ar = Math.round(Math.min(cardW,cardH)*0.16);
+  ctx.beginPath(); ctx.arc(ax,ay,ar+Math.round(ar*0.08),0,Math.PI*2); ctx.closePath(); ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
+
+  if(avatarData){
+    const img = new Image();
+    img.onload = ()=>{
+      const tmp = document.createElement('canvas'); tmp.width = ar*2; tmp.height = ar*2;
+      const tctx = tmp.getContext('2d'); tctx.fillStyle = avColor.value; tctx.fillRect(0,0,tmp.width,tmp.height);
+      const s = Math.max(tmp.width/img.width, tmp.height/img.height);
+      tctx.drawImage(img, (tmp.width - img.width*s)/2, (tmp.height - img.height*s)/2, img.width*s, img.height*s);
+      ctx.save(); ctx.beginPath(); ctx.arc(ax,ay,ar,0,Math.PI*2); ctx.closePath(); ctx.clip();
+      ctx.drawImage(tmp, ax-ar, ay-ar); ctx.restore();
+      drawTextAndSave();
+    };
+    img.onerror = ()=>{ drawAvatarShape(); drawTextAndSave(); };
+    img.src = avatarData;
+  } else {
+    drawAvatarShape(); drawTextAndSave();
+  }
+
+  function drawAvatarShape(){
+    ctx.fillStyle = avColor.value || '#fff'; ctx.beginPath(); ctx.arc(ax,ay,ar,0,Math.PI*2); ctx.closePath(); ctx.fill();
+  }
+
+  function drawTextAndSave(){
+    const tx = cardX + Math.round(cardW*0.34), ty = cardY + Math.round(cardH*0.22);
+    // name auto-scale
+    ctx.fillStyle = '#fff';
+    let nameSize = Math.max(18, Math.floor(W/24));
+    ctx.font = 'bold ' + nameSize + 'px system-ui';
+    while(nameSize > 16 && ctx.measureText(nameEl.value).width > cardW*0.5){
+      nameSize -= 2; ctx.font = 'bold ' + nameSize + 'px system-ui';
+    }
+    ctx.fillText(nameEl.value, tx, ty);
+
+    const roleSize = Math.max(14, Math.floor(nameSize*0.45));
+    ctx.font = '600 ' + roleSize + 'px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.fillText(roleEl.value, tx, ty + Math.round(nameSize*1.05));
+
+    const handleSize = Math.max(12, Math.floor(nameSize*0.35));
+    ctx.font = handleSize + 'px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.82)';
+    ctx.fillText(handleEl.value, tx, ty + Math.round(nameSize*1.8));
+
+    if(tagEl.value){
+      ctx.fillStyle = 'rgba(255,255,255,0.82)'; ctx.font = Math.max(12, Math.floor(nameSize*0.28)) + 'px system-ui';
+      wrapText(ctx, tagEl.value, tx, ty + Math.round(nameSize*2.6), Math.round(cardW*0.46), Math.max(16, Math.floor(nameSize*0.32)));
+    }
+
+    ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = Math.max(10, Math.floor(W/64)) + 'px system-ui';
+    ctx.fillText('Gensyn', cardX + cardW - Math.round(W*0.08), cardY + cardH - Math.round(W*0.06));
+
+    // save PNG
+    const a = document.createElement('a'); a.href = canvas.toDataURL('image/png'); a.download = (nameEl.value || 'gensyn') + '-' + W + 'x' + H + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+}
+
+/* --- Event wiring for downloads --- */
+downloadBtn.addEventListener('click', ()=> downloadCard(sizeSel.value));
+downloadMain.addEventListener('click', ()=> downloadCard(sizeSel.value));
+
+/* --- Initial preview and autosave wiring --- */
+updatePreview();
+[nameEl,roleEl,handleEl,tagEl,c1El,c2El,avColor].forEach(el=>el.addEventListener('change', ()=>{
+  updatePreview(); saveState();
+}));
+
+function saveState(){
+  const st = { n:nameEl.value, r:roleEl.value, h:handleEl.value, t:tagEl.value, c1:c1El.value, c2:c2El.value, av:avatarData, avc:avColor.value };
+  try{ localStorage.setItem('gensyn_card_state', JSON.stringify(st)); }catch(e){}
+}
+
+/* --- Load saved --- */
+(function loadSaved(){
+  try{
+    const s = localStorage.getItem('gensyn_card_state'); if(!s) return;
+    const obj = JSON.parse(s);
+    if(obj.n) nameEl.value = obj.n;
+    if(obj.r) roleEl.value = obj.r;
+    if(obj.h) handleEl.value = obj.h;
+    if(obj.t) tagEl.value = obj.t;
+    if(obj.c1) c1El.value = obj.c1;
+    if(obj.c2) c2El.value = obj.c2;
+    if(obj.avc) avColor.value = obj.avc;
+    if(obj.av) { avatarData = obj.av; }
+    updatePreview();
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
